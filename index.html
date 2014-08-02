@@ -32,18 +32,6 @@
   var audio_context;
   var recorder;
 
-//  function startUserMedia(stream) {
-//    var input = audio_context.createMediaStreamSource(stream);
-//    __log('Media stream created.' );
-//	__log("input sample rate " +input.context.sampleRate);
-//
-//    input.connect(audio_context.destination);
-//    __log('Input connected to audio context destination.');
-//
-//    recorder = new Recorder(input);
-//    __log('Recorder initialised.');
-//  }
-
   function startRecording(button) {
     recorder && recorder.record();
     button.disabled = true;
@@ -69,7 +57,7 @@
       var li = document.createElement('li');
       var au = document.createElement('audio');
       var hf = document.createElement('a');
-      
+
       au.controls = true;
       au.src = url;
       hf.href = url;
@@ -81,45 +69,25 @@
     });
   }
 
-//  var context;
-
-//  var init = function() {
-//      // なにはともあれAudioContextを作る。役割はその名の通り。
-//      // webkitの独自実装なのでプレフィックスがつく。
-//      try{
-//          context = new webkitAudioContext();
-//      } catch(e) {
-//          console.log(e);
-//      }
-//      context.samplingRate = 48000;
-//  }
-
   var src;
+  var gainNode;
+  var isMute;
 
   var audio = function(){
-      // Bufferを生成して、そこからChannelDataを取得する。
-//      var buffer = audio_context.createBuffer( 1, 48000, 48000 );
-//      var channel = buffer.getChannelData(0);
-//
-//      // ChannelDataには1サンプルごとの音声データが入る。
-//      // とりあえず正弦波作って入れる。
-//      for( var i=0; i < channel.length; i++ )
-//      {
-//          channel[i] = Math.sin( i / 100 * Math.PI);
-//      }
-//
-//      // Sourceを作る。これが入力になる。
-//      // 入力にBufferを入れる。
-//      var src = audio_context.createBufferSource();
-//      src.buffer = buffer;
-//
-//      // Modular Routing。Sourceをdest(出力)に直結する。
-//      src.connect(audio_context.destination);
+      if (isMute == true) {
+          gainNode.gain.value = 50;
+          isMute = false;
+      } else {
+          gainNode.gain.value = -1;
+          isMute = true;
+      }
 
-      // そして再生。
-//      src.noteOn(audio_context.currentTime);
-      src.start(audio_context.currentTime);
-  }
+
+//    src.start(audio_context.currentTime);
+//      gainNode.gain.value = 1.0;
+//      src.connect(gainNode);
+//      gainNode.connect(audio_context.destination);
+  };
 
   window.onload = function init() {
     try {
@@ -140,7 +108,7 @@
     }
 
     // Bufferを生成して、そこからChannelDataを取得する。
-      var buffer = audio_context.createBuffer( 1, 48000, 48000 );
+      var buffer = audio_context.createBuffer( 1, 48000 * 100, 48000 );
       var channel = buffer.getChannelData(0);
 
       // ChannelDataには1サンプルごとの音声データが入る。
@@ -158,9 +126,14 @@
       // Modular Routing。Sourceをdest(出力)に直結する。
       src.connect(audio_context.destination);
       recorder = new Recorder(src);
-//    navigator.getUserMedia({audio: true}, startUserMedia, function(e) {
-//      __log('No live audio input: ' + e);
-//    });
+
+      gainNode = audio_context.createGain();
+      gainNode.gain.value = -1;
+      src.connect(gainNode);
+      gainNode.connect(audio_context.destination);
+
+      src.start(audio_context.currentTime);
+      isMute = true;
   };
 
   document.querySelector("#play").addEventListener("click", function(){audio();}, false);
