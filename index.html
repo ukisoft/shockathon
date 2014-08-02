@@ -78,15 +78,9 @@
           gainNode.gain.value = 50;
           isMute = false;
       } else {
-          gainNode.gain.value = -1;
+          gainNode.gain.value = 0;
           isMute = true;
       }
-
-
-//    src.start(audio_context.currentTime);
-//      gainNode.gain.value = 1.0;
-//      src.connect(gainNode);
-//      gainNode.connect(audio_context.destination);
   };
 
   window.onload = function init() {
@@ -124,16 +118,17 @@
       src.buffer = buffer;
 
       // Modular Routing。Sourceをdest(出力)に直結する。
-      src.connect(audio_context.destination);
-      recorder = new Recorder(src);
+//      src.connect(audio_context.destination);
 
       gainNode = audio_context.createGain();
-      gainNode.gain.value = -1;
+      gainNode.gain.value = 0;
       src.connect(gainNode);
       gainNode.connect(audio_context.destination);
 
       src.start(audio_context.currentTime);
       isMute = true;
+
+      recorder = new Recorder(gainNode);
   };
 
   document.querySelector("#play").addEventListener("click", function(){audio();}, false);
