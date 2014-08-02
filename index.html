@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <html>
-<head>
+<head lang="jp">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>Live input record and playback</title>
   <style type='text/css'>
@@ -14,8 +14,9 @@
 
   <h1>Record to MP3 Test</h1>
 
-  <button onclick="startRecording(this);">record</button>
-  <button onclick="stopRecording(this);" disabled>stop</button>
+  <button onclick="startRecording(this);" class="btn btn-lg btn-primary">record</button>
+  <button onclick="stopRecording(this);" disabled class="btn btn-lg btn-danger">stop</button>
+  <button id="play" class="btn btn-lg btn-default">beep</button>
   
   <h2>Recordings</h2>
   <ul id="recordingslist"></ul>
@@ -80,16 +81,55 @@
     });
   }
 
+//  var context;
+
+//  var init = function() {
+//      // なにはともあれAudioContextを作る。役割はその名の通り。
+//      // webkitの独自実装なのでプレフィックスがつく。
+//      try{
+//          context = new webkitAudioContext();
+//      } catch(e) {
+//          console.log(e);
+//      }
+//      context.samplingRate = 48000;
+//  }
+
+  var audio = function(){
+      // Bufferを生成して、そこからChannelDataを取得する。
+      var buffer = audio_context.createBuffer( 1, 48000, 48000 );
+      var channel = buffer.getChannelData(0);
+
+      // ChannelDataには1サンプルごとの音声データが入る。
+      // とりあえず正弦波作って入れる。
+      for( var i=0; i < channel.length; i++ )
+      {
+          channel[i] = Math.sin( i / 100 * Math.PI);
+      }
+
+      // Sourceを作る。これが入力になる。
+      // 入力にBufferを入れる。
+      var src = audio_context.createBufferSource();
+      src.buffer = buffer;
+
+      // Modular Routing。Sourceをdest(出力)に直結する。
+      src.connect(audio_context.destination);
+
+      // そして再生。
+//      src.noteOn(audio_context.currentTime);
+      src.start(audio_context.currentTime);
+  }
+
   window.onload = function init() {
     try {
       // webkit shim
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
       navigator.getUserMedia = ( navigator.getUserMedia ||
                        navigator.webkitGetUserMedia ||
                        navigator.mozGetUserMedia ||
                        navigator.msGetUserMedia);
       window.URL = window.URL || window.webkitURL;
-      
+
       audio_context = new AudioContext;
       __log('Audio context set up.');
       __log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
@@ -101,6 +141,9 @@
       __log('No live audio input: ' + e);
     });
   };
+
+  document.querySelector("#play").addEventListener("click", function(){audio();}, false);
+//  init();
   </script>
 	
    <script src="js/jquery-1.11.0.min.js"></script>	
