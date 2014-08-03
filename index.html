@@ -9,10 +9,12 @@
     #recordingslist audio { display: block; margin-bottom: 10px; }
   </style>
    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="recorder.js"></script>
 </head>
 <body>
 
-  <h1>Record to MP3 Test</h1>
+  <h1>Record to MP3 with Beep</h1>
 
   <button onclick="startRecording(this);" class="btn btn-lg btn-primary">record</button>
   <button onclick="stopRecording(this);" disabled class="btn btn-lg btn-danger">stop</button>
@@ -46,42 +48,32 @@
     __log('Stopped recording.');
     
     // create WAV download link using audio data blob
-    createDownloadLink();
+//    createDownloadLink();
     
     recorder.clear();
   }
 
-  function createDownloadLink() {
-    recorder && recorder.exportWAV(function(blob) {
-      /*var url = URL.createObjectURL(blob);
-      var li = document.createElement('li');
-      var au = document.createElement('audio');
-      var hf = document.createElement('a');
-
-      au.controls = true;
-      au.src = url;
-      hf.href = url;
-      hf.download = new Date().toISOString() + '.wav';
-      hf.innerHTML = hf.download;
-      li.appendChild(au);
-      li.appendChild(hf);
-      recordingslist.appendChild(li);*/
-    });
-  }
+//  function createDownloadLink() {
+//    recorder && recorder.exportWAV(function(blob) {
+//      /*var url = URL.createObjectURL(blob);
+//      var li = document.createElement('li');
+//      var au = document.createElement('audio');
+//      var hf = document.createElement('a');
+//
+//      au.controls = true;
+//      au.src = url;
+//      hf.href = url;
+//      hf.download = new Date().toISOString() + '.wav';
+//      hf.innerHTML = hf.download;
+//      li.appendChild(au);
+//      li.appendChild(hf);
+//      recordingslist.appendChild(li);*/
+//    });
+//  }
 
   var src;
   var gainNode;
   var isMute;
-
-  var audio = function(){
-      if (isMute == true) {
-          gainNode.gain.value = 50;
-          isMute = false;
-      } else {
-          gainNode.gain.value = 0;
-          isMute = true;
-      }
-  };
 
   window.onload = function init() {
     try {
@@ -111,31 +103,44 @@
       {
           channel[i] = Math.sin( i / 100 * Math.PI);
       }
+      __log('Beep is ready.');
 
       // Sourceを作る。これが入力になる。
       // 入力にBufferを入れる。
       src = audio_context.createBufferSource();
       src.buffer = buffer;
 
-      // Modular Routing。Sourceをdest(出力)に直結する。
-//      src.connect(audio_context.destination);
-
+      // 音量
       gainNode = audio_context.createGain();
       gainNode.gain.value = 0;
       src.connect(gainNode);
+      __log('gainNode is ready.');
+
+      // Modular Routing。Sourceをdest(出力)に直結する。
       gainNode.connect(audio_context.destination);
 
       src.start(audio_context.currentTime);
       isMute = true;
 
       recorder = new Recorder(gainNode);
+      __log('Set source to output. All process is ready.');
   };
 
-  document.querySelector("#play").addEventListener("click", function(){audio();}, false);
-//  init();
+//  document.querySelector("#play").addEventListener("click", function(){audio();}, false);
+  $('#play').mousedown(function() {gainNode.gain.value = 50;});
+  $('#play').mouseup(function() {gainNode.gain.value = 0;});
+
+
+//  var audio = function(){
+//      if (isMute == true) {
+//          gainNode.gain.value = 50;
+//          isMute = false;
+//      } else {
+//          gainNode.gain.value = 0;
+//          isMute = true;
+//      }
+//  };
+
   </script>
-	
-   <script src="js/jquery-1.11.0.min.js"></script>	
-  <script src="recorder.js"></script>
 </body>
 </html>
