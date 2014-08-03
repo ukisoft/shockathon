@@ -11,6 +11,7 @@
     <link href="css/style.css" rel="stylesheet" type="text/css" />
     <script src="js/jquery-1.11.0.min.js"></script>
     <script src="recorder.js"></script>
+    <script type="text/javascript" src="js/excanvas.js"></script>
 </head>
 <body>
     <h1 class="text-center">Record to MP3 with Beep</h1>
@@ -19,6 +20,10 @@
         <button onclick="startRecording(this);" class="btn btn-lg btn-success btn-block">record</button>
         <button onclick="stopRecording(this);" disabled class="btn btn-lg btn-danger btn-block">stop</button>
         <button id="play" class="btn btn-lg btn-default btn-block">beep</button>
+    </div>
+
+    <div class="well" style="max-width: 600px; margin: 0 auto 10px;">
+        <canvas id="c1" width="560" height="140"></canvas>
     </div>
 
     <h2 class="text-center">Recordings</h2>
@@ -35,11 +40,16 @@
         var audio_context;
         var recorder;
         var gainNode;
+        var isRecording = false;
+        var isBeeping = false;
+        var y = 0;
+        var ctx;
 
         function startRecording(button) {
             recorder && recorder.record();
             button.disabled = true;
             button.nextElementSibling.disabled = false;
+            isRecording = true;
             __log('Recording...');
         }
 
@@ -47,6 +57,7 @@
             recorder && recorder.stop();
             button.disabled = true;
             button.previousElementSibling.disabled = false;
+            isRecording = false;
             __log('Stopped recording.');
 
             // create WAV download link using audio data blob
@@ -110,10 +121,38 @@
             __log('Set source to output.');
             __log('All process is ready.');
             __log('');
+
+            startDrawing();
         };
 
-        $('#play').mousedown(function() {gainNode.gain.value = 100;});
-        $('#play').mouseup(function() {gainNode.gain.value = 0;});
+        $('#play').mousedown(function() {
+            gainNode.gain.value = 100;
+            isBeeping = true;
+        });
+        $('#play').mouseup(function() {
+            gainNode.gain.value = 0;
+            isBeeping = false;
+        });
+
+        function startDrawing() {
+            var canvas = document.getElementById('c1');
+            if ( ! canvas || ! canvas.getContext ) { return false; }
+            ctx = canvas.getContext('2d');
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgb(60, 179, 113)';
+            setTimeout(mes,100);
+        }
+
+        function mes() {
+            if (isRecording) {
+                y += 3;
+                var x = 120;
+                if (isBeeping) x = 20;
+                ctx.arc(y, x, 1, 0, Math.PI*2, false);
+                ctx.stroke();
+            }
+            setTimeout(mes,100);
+        }
     </script>
 </body>
 </html>
