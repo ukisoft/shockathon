@@ -43,14 +43,16 @@
         var gainNode;
         var isRecording = false;
         var isBeeping = false;
-        var y = 0;
+        var x = 0;
         var ctx;
+        var canvas;
 
         function startRecording(button) {
             recorder && recorder.record();
             button.disabled = true;
             button.nextElementSibling.disabled = false;
             isRecording = true;
+            resetDrawing();
             __log('Recording...');
         }
 
@@ -91,7 +93,7 @@
             }
 
             // Bufferを生成して、そこからChannelDataを取得する。
-            var buffer = audio_context.createBuffer( 1, 48000 * 100, 48000 );
+            var buffer = audio_context.createBuffer( 1, 48000 * 10000, 48000 );
             var channel = buffer.getChannelData(0);
 
             // ChannelDataには1サンプルごとの音声データが入る。
@@ -136,24 +138,30 @@
         });
 
         function startDrawing() {
-            var canvas = document.getElementById('c1');
+            canvas = document.getElementById('c1');
             if ( ! canvas || ! canvas.getContext ) { return false; }
             ctx = canvas.getContext('2d');
             ctx.beginPath();
-            ctx.strokeStyle = 'rgb(60, 179, 113)';
             setTimeout(mes,100);
         }
 
         function mes() {
             if (isRecording) {
-                y += 3;
-                var x = 120;
-                if (isBeeping) x = 20;
-                ctx.arc(y, x, 1, 0, Math.PI*2, false);
+                x += 3;
+                var y = 120;
+                if (isBeeping) y = 20;
+                ctx.arc(x, y, 1, 0, Math.PI*2, false);
+                ctx.strokeStyle = 'rgb(60, 179, 113)';
                 ctx.stroke();
             }
             setTimeout(mes,100);
         }
+
+        function resetDrawing() {
+            canvas.width = canvas.width;
+            x = 0;
+        }
+
     </script>
 </body>
 </html>
