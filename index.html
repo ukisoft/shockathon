@@ -65,9 +65,7 @@
             isRecording = false;
             __log('Stopped recording.');
 
-            // create WAV download link using audio data blob
             createDownloadLink();
-
             recorder.clear();
         }
 
@@ -78,7 +76,6 @@
 
         window.onload = function init() {
             try {
-                // webkit shim
                 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
                 navigator.getUserMedia = ( navigator.getUserMedia ||
@@ -93,67 +90,25 @@
             } catch (e) {
                 alert('No web audio support in this browser!');
             }
-
-//            // Bufferを生成して、そこからChannelDataを取得する。
-//            var buffer = audio_context.createBuffer( 1, 48000 * 100, 48000 );
-//            var channel = buffer.getChannelData(0);
-//
-//            // ChannelDataには1サンプルごとの音声データが入る。
-//            // とりあえず正弦波作って入れる。
-//            for( var i=0; i < channel.length; i++ ) {
-//                channel[i] = Math.sin( i / 100 * Math.PI);
-//            }
-//            __log('Beep is ready.');
-//
-//            // Sourceを作る。これが入力になる。
-//            // 入力にBufferを入れる。
-//            var src = audio_context.createBufferSource();
-//            src.buffer = buffer;
-//
-//            // 音量
-//            gainNode = audio_context.createGain();
-//            gainNode.gain.value = 0;
-//            src.connect(gainNode);
-//            __log('gainNode is ready.');
-//
-//            // Modular Routing。Sourceをdest(出力)に直結する。
-//            gainNode.connect(audio_context.destination);
-
-//            src.start(audio_context.currentTime);
             isMute = true;
-
-//            recorder = new Recorder(gainNode);
-//            __log('Set source to output.');
-//            __log('All process is ready.');
-//            __log('');
-
             startDrawing();
         };
 
         function beep () {
-            // Bufferを生成して、そこからChannelDataを取得する。
             var buffer = audio_context.createBuffer( 1, 48000 * 100, 48000 );
             var channel = buffer.getChannelData(0);
 
-            // ChannelDataには1サンプルごとの音声データが入る。
-            // とりあえず正弦波作って入れる。
             for( var i=0; i < channel.length; i++ ) {
                 channel[i] = Math.sin( i / 100 * Math.PI);
             }
-//            __log('Beep is ready.');
 
-            // Sourceを作る。これが入力になる。
-            // 入力にBufferを入れる。
             var src = audio_context.createBufferSource();
             src.buffer = buffer;
 
-            // 音量
             gainNode = audio_context.createGain();
             gainNode.gain.value = 0;
             src.connect(gainNode);
-//            __log('gainNode is ready.');
 
-            // Modular Routing。Sourceをdest(出力)に直結する。
             gainNode.connect(audio_context.destination);
             src.start(audio_context.currentTime);
         }
